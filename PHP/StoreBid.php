@@ -6,81 +6,103 @@
     include("PHPprinter.php");
     $startTime = getMicroTime();
     
-    $userId = $HTTP_POST_VARS['userId'];
-    if ($userId == null)
+    $userId = NULL;
+    if (isset($_POST['userId']))
     {
-      $userId = $HTTP_GET_VARS['userId'];
-      if ($userId == null)
-      {
-         printError($scriptName, $startTime, "StoreBid", "<h3>You must provide a user identifier!<br></h3>");
-         exit();
-      }
+        $userId = $_POST['userId'];
     }
-      
-    $itemId = $HTTP_POST_VARS['itemId'];
-    if ($itemId == null)
+    else if (isset($_GET['userId']))
     {
-      $itemId = $HTTP_GET_VARS['itemId'];
-      if ($itemId == null)
-      {
-         printError($scriptName, $startTime, "StoreBid", "<h3>You must provide an item identifier !<br></h3>");
-         exit();
-      }
+        $userId = $_GET['userId'];
     }
-      
-    $minBid = $HTTP_POST_VARS['minBid'];
-    if ($minBid == null)
+    else
     {
-      $minBid = $HTTP_GET_VARS['minBid'];
-      if ($minBid == null)
-      {
-         printError($scriptName, $startTime, "StoreBid", "<h3>You must provide an item identifier !<br></h3>");
-         exit();
-      }
+    	printError($scriptName, $startTime, "StoreBid", "<h3>You must provide a user identifier!<br></h3>");
+    	exit();
     }
-
-    $bid = $HTTP_POST_VARS['bid'];
-    if ($bid == null)
+    $itemId = NULL;
+    if (isset($_POST['itemId']))
     {
-      $bid = $HTTP_GET_VARS['bid'];
-      if ($bid == null)
-      {
-         printError($scriptName, $startTime, "StoreBid", "<h3>You must provide a minimum bid !<br></h3>");
-         exit();
-      }
+        $itemId = $_POST['itemId'];
     }
-
-    $maxBid = $HTTP_POST_VARS['maxBid'];
-    if ($maxBid == null)
+    else if (isset($_GET['itemId']))
     {
-      $maxBid = $HTTP_GET_VARS['maxBid'];
-      if ($maxBid == null)
-      {
-         printError($scriptName, $startTime, "StoreBid", "<h3>You must provide a maximum bid !<br></h3>");
-         exit();
-      }
+        $itemId = $_GET['itemId'];
     }
-
-    $maxQty = $HTTP_POST_VARS['maxQty'];
-    if ($maxQty == null)
+    else
     {
-      $maxQty = $HTTP_GET_VARS['maxQty'];
-      if ($maxQty == null)
-      {
-         printError($scriptName, $startTime, "StoreBid", "<h3>You must provide a maximum quantity !<br></h3>");
-         exit();
-      }
+        printError($scriptName, $startTime, "StoreBid", "<h3>You must provide an item identifier !<br></h3>");
+        exit();
     }
-
-    $qty = $HTTP_POST_VARS['qty'];
-    if ($qty == null)
+    $minBid = NULL;
+    if (isset($_POST['minBid']))
     {
-      $qty = $HTTP_GET_VARS['qty'];
-      if ($qty == null)
-      {
-         printError($scriptName, $startTime, "StoreBid", "<h3>You must provide a quantity !<br></h3>");
-         exit();
-      }
+        $minBid = $_POST['minBid'];
+    }
+    else if (isset($_GET['minBid']))
+    {
+        $minBid = $_GET['minBid'];
+    }
+    else
+    {
+    	printError($scriptName, $startTime, "StoreBid", "<h3>You must provide an item identifier !<br></h3>");
+    	exit();
+    } 
+    $bid = NULL;
+    if (isset($_POST['bid']))
+    {
+    	$bid = $_POST['bid'];
+    }
+    else if (isset($_GET['bid']))
+    {
+    	$bid = $_GET['bid'];
+    }
+    else
+    {
+    	printError($scriptName, $startTime, "StoreBid", "<h3>You must provide a minimum bid !<br></h3>");
+    	exit();
+    }
+    $maxBid = NULL;
+    if (isset($_POST['maxBid']))
+    {
+        $maxBid = $_POST['maxBid'];
+    }
+    else if (isset($_GET['maxBid']))
+    {
+        $maxBid = $_GET['maxBid'];
+    }
+    else
+    {
+    	printError($scriptName, $startTime, "StoreBid", "<h3>You must provide a maximum bid !<br></h3>");
+    	exit();
+    }
+    $maxQty = NULL;
+    if (isset($_POST['maxQty']))
+    {
+    	$maxQty = $_POST['maxQty'];
+    }
+    else if (isset($_GET['maxQty']))
+    {
+    	$maxQty = $_GET['maxQty'];
+    }
+    else
+    {
+    	printError($scriptName, $startTime, "StoreBid", "<h3>You must provide a maximum quantity !<br></h3>");
+    	exit();
+    }
+    $qty = NULL;
+    if (isset($_POST['qty']))
+    {
+    	$qty = $_POST['qty'];
+    }
+    else if (isset($_GET['qty']))
+    {
+    	$qty = $_GET['qty'];
+    }
+    else
+    {
+    	printError($scriptName, $startTime, "StoreBid", "<h3>You must provide a quantity !<br></h3>");
+    	exit();
     }
 
     /* Check for invalid values */

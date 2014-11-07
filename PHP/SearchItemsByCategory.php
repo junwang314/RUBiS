@@ -6,10 +6,10 @@
     include("PHPprinter.php");
     $startTime = getMicroTime();
     
-    $categoryName = $HTTP_POST_VARS['categoryName'];
+    $categoryName = $_POST['categoryName'];
     if ($categoryName == null)
     {
-      $categoryName = $HTTP_GET_VARS['categoryName'];
+      $categoryName = $_GET['categoryName'];
       if ($categoryName == null)
       {
          printError($scriptName, $startTime, "Search Items By Category", "You must provide a category name!<br>");
@@ -17,10 +17,10 @@
       }
     }
       
-    $categoryId = $HTTP_POST_VARS['category'];
+    $categoryId = $_POST['category'];
     if ($categoryId == null)
     {
-      $categoryId = $HTTP_GET_VARS['category'];
+      $categoryId = $_GET['category'];
       if ($categoryId == null)
       {
          printError($scriptName, $startTime, "Search Items By Category", "You must provide a category identifier!<br>");
@@ -28,18 +28,18 @@
       }
     }
       
-    $page = $HTTP_POST_VARS['page'];
+    $page = $_POST['page'];
     if ($page == null)
     {
-      $page = $HTTP_GET_VARS['page'];
+      $page = $_GET['page'];
       if ($page == null)
         $page = 0;
     }
       
-    $nbOfItems = $HTTP_POST_VARS['nbOfItems'];
+    $nbOfItems = $_POST['nbOfItems'];
     if ($nbOfItems == null)
     {
-      $nbOfItems = $HTTP_GET_VARS['nbOfItems'];
+      $nbOfItems = $_GET['nbOfItems'];
       if ($nbOfItems == null)
         $nbOfItems = 25;
     }
@@ -49,11 +49,12 @@
     
     getDatabaseLink($link);
     begin($link);
+    //$result = mysql_query("SELECT items.id,items.name,items.initial_price,items.max_bid,items.nb_of_bids,items.end_date FROM items WHERE category=$categoryId  LIMIT ".$page*$nbOfItems.",$nbOfItems", $link) or die("ERROR: Query failed");
     $result = mysql_query("SELECT items.id,items.name,items.initial_price,items.max_bid,items.nb_of_bids,items.end_date FROM items WHERE category=$categoryId AND end_date>=NOW() LIMIT ".$page*$nbOfItems.",$nbOfItems", $link) or die("ERROR: Query failed");
     if (mysql_num_rows($result) == 0)
     {
       if ($page == 0)
-        print("<h2>Sorry, but there are no items available in this category !</h2>");
+        print("<h2>Sorry, but there are no items available in this category (categoryId $categoryId)!</h2>");
       else
       {
         print("<h2>Sorry, but there are no more items available in this category !</h2>");

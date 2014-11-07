@@ -2,8 +2,8 @@
  
 function getDatabaseLink(&$link)
 {
-  $link = mysql_pconnect("localhost", "cecchet", "") or die ("ERROR: Could not connect to database");
-  mysql_select_db("rubis", $link) or die("ERROR: Couldn't select RUBiS database");
+  $link = mysql_pconnect("localhost", "rubis", "rubis") or die ("ERROR: Could not connect to database");
+  mysql_select_db("rubis2", $link) or die("ERROR: Couldn't select RUBiS database");
 }
 
 function getMicroTime()

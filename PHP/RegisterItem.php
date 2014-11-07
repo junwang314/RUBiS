@@ -6,99 +6,130 @@
     include("PHPprinter.php");
     $startTime = getMicroTime();
     
-    $userId = $HTTP_POST_VARS['userId'];
-    if ($userId == null)
+    $userId = NULL;
+    if (isset($_POST['userId']))
     {
-      $userId = $HTTP_GET_VARS['userId'];
-      if ($userId == null)
-      {
-         printError($scriptName, $startTime, "RegisterItem", "<h3>You must provide a user identifier!<br></h3>");
-         exit();
-      }
+    	$userId = $_POST['userId'];
     }
-      
-    $categoryId = $HTTP_POST_VARS['categoryId'];
-    if ($categoryId == null)
+    else if (isset($_GET['userId']))
     {
-      $categoryId = $HTTP_GET_VARS['categoryId'];
-      if ($categoryId == null)
-      {
-         printError($scriptName, $startTime, "RegisterItem", "<h3>You must provide a category identifier !<br></h3>");
-         exit();
-      }
+    	$userId = $_GET['userId'];
     }
-      
-    $name = $HTTP_POST_VARS['name'];
-    if ($name == null)
+    else
     {
-      $name = $HTTP_GET_VARS['name'];
-      if ($name == null)
-      {
-         printError($scriptName, $startTime, "RegisterItem", "<h3>You must provide an item name !<br></h3>");
-         exit();
-      }
+    	printError($scriptName, $startTime, "RegisterItem", "<h3>You must provide a user identifier!<br></h3>");
+    	exit();
     }
-
-    $initialPrice = $HTTP_POST_VARS['initialPrice'];
-    if ($initialPrice == null)
+    $categoryId = NULL;
+    if (isset($_POST['categoryId']))
     {
-      $initialPrice = $HTTP_GET_VARS['initialPrice'];
-      if ($initialPrice == null)
-      {
-         printError($scriptName, $startTime, "RegisterItem", "<h3>You must provide an initial price !<br></h3>");
-         exit();
-      }
+    	$categoryId = $_POST['categoryId'];
     }
-
-    $reservePrice = $HTTP_POST_VARS['reservePrice'];
-    if ($reservePrice == null)
+    else if (isset($_GET['categoryId']))
     {
-      $reservePrice = $HTTP_GET_VARS['reservePrice'];
-      if ($reservePrice == null)
-      {
-         printError($scriptName, $startTime, "RegisterItem", "<h3>You must provide a reserve price !<br></h3>");
-         exit();
-      }
+    	$categoryId = $_GET['categoryId'];
     }
-
-    $reservePrice = $HTTP_POST_VARS['reservePrice'];
-    if ($reservePrice == null)
+    else
     {
-      $reservePrice = $HTTP_GET_VARS['reservePrice'];
-      if ($reservePrice == null)
-      {
-         printError($scriptName, $startTime, "RegisterItem", "<h3>You must provide a Buy Now price !<br></h3>");
-         exit();
-      }
+    	printError($scriptName, $startTime, "RegisterItem", "<h3>You must provide a category identifier !<br></h3>");
+    	exit();
     }
-
-    if ($duration == null)
+    $name = NULL;
+    if (isset($_POST['name']))
     {
-      $duration = $HTTP_GET_VARS['duration'];
-      if ($duration == null)
-      {
-         printError($scriptName, $startTime, "RegisterItem", "<h3>You must provide a duration !<br></h3>");
-         exit();
-      }
+    	$name = $_POST['name'];
     }
-
-    $qty = $HTTP_POST_VARS['quantity'];
-    if ($qty == null)
+    else if (isset($_GET['name']))
     {
-      $qty = $HTTP_GET_VARS['quantity'];
-      if ($qty == null)
-      {
-         printError($scriptName, $startTime, "RegisterItem", "<h3>You must provide a quantity !<br></h3>");
-         exit();
-      }
+    	$name = $_GET['name'];
     }
-
-    $description = $HTTP_POST_VARS['description'];
-    if ($description == null)
+    else
     {
-      $description = $HTTP_GET_VARS['description'];
-      if ($description == null)
-        $description = "No description";
+    	printError($scriptName, $startTime, "RegisterItem", "<h3>You must provide an item name !<br></h3>");
+    	exit();
+    }
+    $initialPrice = NULL;
+    if (isset($_POST['initialPrice']))
+    {
+    	$initialPrice = $_POST['initialPrice'];
+    }
+    else if (isset($_GET['initialPrice']))
+    {
+    	$initialPrice = $_GET['initialPrice'];
+    }
+    else
+    {
+    	printError($scriptName, $startTime, "RegisterItem", "<h3>You must provide an initial price !<br></h3>");
+    	exit();
+    }
+    $reservePrice = NULL;
+    if (isset($_POST['reservePrice']))
+    {
+    	$reservePrice = $_POST['reservePrice'];
+    }
+    else if (isset($_GET['reservePrice']))
+    {
+    	$reservePrice = $_GET['reservePrice'];
+    }
+    else
+    {
+    	printError($scriptName, $startTime, "RegisterItem", "<h3>You must provide a reserve price !<br></h3>");
+    	exit();
+    }
+    $buyNow = NULL;
+    if (isset($_POST['buyNow']))
+    {
+    	$buyNow = $_POST['buyNow'];
+    }
+    else if (isset($_GET['buyNow']))
+    {
+    	$buyNow = $_GET['buyNow'];
+    }
+    else
+    {
+    	printError($scriptName, $startTime, "RegisterItem", "<h3>You must provide a Buy Now price !<br></h3>");
+    	exit();
+    }
+    $duration = NULL;
+    if (isset($_POST['duration']))
+    {
+    	$duration = $_POST['duration'];
+    }
+    else if (isset($_GET['duration']))
+    {
+    	$duration = $_GET['duration'];
+    }
+    else
+    {
+    	printError($scriptName, $startTime, "RegisterItem", "<h3>You must provide a duration !<br></h3>");
+    	exit();
+    }
+    $qty = NULL;
+    if (isset($_POST['quantity']))
+    {
+    	$qty = $_POST['quantity'];
+    }
+    else if (isset($_GET['quantity']))
+    {
+    	$qty = $_GET['quantity'];
+    }
+    else
+    {
+    	printError($scriptName, $startTime, "RegisterItem", "<h3>You must provide a quantity !<br></h3>");
+    	exit();
+    }
+    $description = NULL;
+    if (isset($_POST['description']))
+    {
+    	$description = $_POST['description'];
+    }
+    else if (isset($_GET['description']))
+    {
+    	$description = $_GET['description'];
+    }
+    else
+    {
+    	$description = "No description";
     }
 
     getDatabaseLink($link);
@@ -107,7 +138,7 @@
     // Add item to database
     $start = date("Y:m:d H:i:s");
     $end = date("Y:m:d H:i:s", mktime(date("H"), date("i"),date("s"), date("m"), date("d")+$duration, date("Y")));
-    $result = mysql_query("INSERT INTO items VALUES (NULL, \"$name\", \"$description\", $initialPrice, $quantity, $reservePrice, $buyNow, 0, 0, '$start', '$end', $userId, $categoryId)", $link) or die("ERROR: Failed to insert new item in database. MySQL reports '".mysql_error()."' while querying 'INSERT INTO items VALUES (NULL, \"$name\", \"$description\", $initialPrice, $quantity, $reservePrice, $buyNow, '$start', '$end', $userId, $categoryId)'");
+    $result = mysql_query("INSERT INTO items VALUES (NULL, \"$name\", \"$description\", $initialPrice, $qty, $reservePrice, $buyNow, 0, 0, '$start', '$end', $userId, $categoryId)", $link) or die("ERROR: Failed to insert new item in database. MySQL reports '".mysql_error()."' while querying 'INSERT INTO items VALUES (NULL, \"$name\", \"$description\", $initialPrice, $qty, $reservePrice, $buyNow, '$start', '$end', $userId, $categoryId)'");
     commit($link);
 
     printHTMLheader("RUBiS: Selling $name");
