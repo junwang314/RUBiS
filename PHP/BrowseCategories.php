@@ -6,17 +6,33 @@
     include("PHPprinter.php");
     $startTime = getMicroTime();
 
-    $region = $_POST['region'];
-    if ($region == null)
-      $region = $_GET['region'];
-
-    $username = $_POST['nickname'];
-    if ($username == null)
-      $username = $_GET['nickname'];
-
-    $password = $_POST['password'];
-    if ($password == null)
-      $password = $_GET['password'];
+    $region = NULL;
+    if (isset($_POST['region']))
+    {
+    	$region = $_POST['region'];
+    }
+    else if (isset($_GET['region']))
+    {
+    	$region = $_GET['region'];
+    }
+    $username = NULL;
+    if (isset($_POST['nickname']))
+    {
+    	$username = $_POST['nickname'];
+    }
+    else if (isset($_GET['nickname']))
+    {
+    	$username = $_GET['nickname'];
+    }
+    $password = NULL;
+    if (isset($_POST['password']))
+    {
+    	$password = $_POST['password'];
+    }
+    else if (isset($_GET['password']))
+    {
+    	$password = $_GET['password'];
+    }
 
     getDatabaseLink($link);
 
