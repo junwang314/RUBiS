@@ -6,96 +6,101 @@
     include("PHPprinter.php");
     $startTime = getMicroTime();
     
-    $firstname = NULL;
-    if (isset($_POST['firstname']))
-    {
+	$firstname = NULL;
+	if (isset($_POST['firstname']))
+	{
     	$firstname = $_POST['firstname'];
-    }
-    else if (isset($_GET['firstname']))
-    {
+	}
+	else if (isset($_GET['firstname']))
+	{
     	$firstname = $_GET['firstname'];
-    }
-    else
-    {
-    	printError($scriptName, $startTime, "Register user", "You must provide a first name!<br>");
-    	exit();
-    }
-    $lastname = NULL;
-    if (isset($_POST['lastname']))
-    {
+	}
+	else
+	{
+		printError($scriptName, $startTime, "Register user", "You must provide a first name!<br>");
+		exit();
+	}
+	$lastname = NULL;
+	if (isset($_POST['lastname']))
+	{
     	$lastname = $_POST['lastname'];
-    }
-    else if (isset($_GET['lastname']))
-    {
+	}
+	else if (isset($_GET['lastname']))
+	{
     	$lastname = $_GET['lastname'];
-    }
-    else
-    {
-    	printError($scriptName, $startTime, "Register user", "You must provide a last name!<br>");
-    	exit();
-    }
-    $nickname = NULL;
-    if (isset($_POST['nickname']))
-    {
+	}
+	else
+	{
+		printError($scriptName, $startTime, "Register user", "You must provide a last name!<br>");
+		exit();
+	}
+	$nickname = NULL;
+	if (isset($_POST['nickname']))
+	{
     	$nickname = $_POST['nickname'];
-    }
-    else if (isset($_GET['nickname']))
-    {
+	}
+	else if (isset($_GET['nickname']))
+	{
     	$nickname = $_GET['nickname'];
-    }
-    else
-    {
-    	printError($scriptName, $startTime, "Register user", "You must provide a nick name!<br>");
-    	exit();
-    }
-    $email = NULL;
-    if (isset($_POST['email']))
-    {
+	}
+	else
+	{
+		printError($scriptName, $startTime, "Register user", "You must provide a nick name!<br>");
+		exit();
+	}
+	$email = NULL;
+	if (isset($_POST['email']))
+	{
     	$email = $_POST['email'];
-    }
-    else if (isset($_GET['email']))
-    {
+	}
+	else if (isset($_GET['email']))
+	{
     	$email = $_GET['email'];
-    }
-    else
-    {
-    	printError($scriptName, $startTime, "Register user", "You must provide an email address!<br>");
-    	exit();
-    }
-    $password = NULL;
-    if (isset($_POST['password']))
-    {
+	}
+	else
+	{
+		printError($scriptName, $startTime, "Register user", "You must provide an email address!<br>");
+		exit();
+	}
+	$password = NULL;
+	if (isset($_POST['password']))
+	{
     	$password = $_POST['password'];
-    }
-    else if (isset($_GET['password']))
-    {
+	}
+	else if (isset($_GET['password']))
+	{
     	$password = $_GET['password'];
-    }
-    else
-    {
-    	printError($scriptName, $startTime, "Register user", "You must provide a password!<br>");
-    	exit();
-    }
-    $region = NULL;
-    if (isset($_POST['region']))
-    {
+	}
+	else
+	{
+		printError($scriptName, $startTime, "Register user", "You must provide a password!<br>");
+		exit();
+	}
+	$region = NULL;
+	if (isset($_POST['region']))
+	{
     	$region = $_POST['region'];
-    }
-    else if (isset($_GET['region']))
-    {
+	}
+	else if (isset($_GET['region']))
+	{
     	$region = $_GET['region'];
-    }
-    else
-    {
-    	printError($scriptName, $startTime, "Register user", "You must provide a region!<br>");
-    	exit();
-    }
+	}
+	else
+	{
+		printError($scriptName, $startTime, "Register user", "You must provide a region!<br>");
+		exit();
+	}
 
     getDatabaseLink($link);
 
     begin($link);
     // Check if the region really exists
-    $regionResult = mysql_query("SELECT * FROM regions WHERE name=\"$region\"", $link) or die("ERROR: Region query failed");
+    $regionResult = mysql_query("SELECT * FROM regions WHERE name=\"$region\"", $link);
+	if (!$regionResult)
+	{
+		error_log("[".__FILE__."] Query 'SELECT * FROM regions WHERE name=\"$region\"' failed: " . mysql_error($link));
+		die("ERROR: Region query failed for region '$region': " . mysql_error($link));
+	}
     if (mysql_num_rows($regionResult) == 0)
     {
       printError($scriptName, $startTime, "Register user", "Region $region does not exist in the database!<br>\n");
@@ -112,7 +117,12 @@
     }
 
     // Check if the nick name already exists
-    $nicknameResult = mysql_query("SELECT * FROM users WHERE nickname=\"$nickname\"", $link) or die("ERROR: Nickname query failed");
+    $nicknameResult = mysql_query("SELECT * FROM users WHERE nickname=\"$nickname\"", $link);
+	if (!$nicknameResult)
+	{
+		error_log("[".__FILE__."] Query 'SELECT * FROM users WHERE nickname=\"$nickname\"' failed: " . mysql_error($link));
+		die("ERROR: Nickname query failed: " . mysql_error($link));
+	}
     if (mysql_num_rows($nicknameResult) > 0)
     {
       printError($scriptName, $startTime, "Register user", "The nickname you have choosen is already taken by someone else. Please choose a new nickname.<br>\n");
@@ -123,9 +133,19 @@
 
     // Add user to database
     $now = date("Y:m:d H:i:s");
-    $result = mysql_query("INSERT INTO users VALUES (NULL, \"$firstname\", \"$lastname\", \"$nickname\", \"$password\", \"$email\", 0, 0, '$now', $regionId)", $link) or die("ERROR: Failed to insert new user in database.");
+    $result = mysql_query("INSERT INTO users VALUES (NULL, \"$firstname\", \"$lastname\", \"$nickname\", \"$password\", \"$email\", 0, 0, '$now', $regionId)", $link);
+	if (!$result)
+	{
+		error_log("[".__FILE__."] Failed to insert new user in database INSERT INTO users VALUES (NULL, \"$firstname\", \"$lastname\", \"$nickname\", \"$password\", \"$email\", 0, 0, '$now', $regionId)': " . mysql_error($link));
+		die("ERROR: Failed to insert new user '$nickname' in database: " . mysql_error($link));
+	}
 
-    $result = mysql_query("SELECT * FROM users WHERE nickname=\"$nickname\"", $link) or die("ERROR: Query user failed");
+    $result = mysql_query("SELECT * FROM users WHERE nickname=\"$nickname\"", $link);
+	if (!$result)
+	{
+		error_log("[".__FILE__."] Query 'SELECT * FROM users WHERE nickname=\"$nickname\"' failed: " . mysql_error($link));
+		die("ERROR: Query user failed: " . mysql_error($link));
+	}
     $row = mysql_fetch_array($result);
     commit($link);
 

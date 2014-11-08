@@ -6,38 +6,48 @@
     include("PHPprinter.php");
     $startTime = getMicroTime();
     
-    $nickname = $_POST['nickname'];
-    if ($nickname == null)
-    {
-      $nickname = $_GET['nickname'];
-      if ($nickname == null)
-      {
-         printError($scriptName, $startTime, "BuyNow", "You must provide a nick name!<br>");
-         exit();
-      }
-    }
-
-    $password = $_POST['password'];
-    if ($password == null)
-    {
-      $password = $_GET['password'];
-      if ($password == null)
-      {
-         printError($scriptName, $startTime, "BuyNow", "You must provide a password!<br>");
-         exit();
-      }
-    }
-
-    $itemId = $_POST['itemId'];
-    if ($itemId == null)
-    {
-      $itemId = $_GET['itemId'];
-      if ($itemId == null)
-      {
-         printError($scriptName, $startTime, "BuyNow", "You must provide an item identifier!<br>");
-         exit();
-      }
-    }
+	$nickname = NULL;
+	if (isset($_POST['nickname']))
+	{
+    	$nickname = $_POST['nickname'];
+	}
+	else if (isset($_GET['nickname']))
+	{
+    	$nickname = $_GET['nickname'];
+	}
+	else
+	{
+		printError($scriptName, $startTime, "BuyNow", "You must provide a nick name!<br>");
+		exit();
+	}
+	$password = NULL;
+	if (isset($_POST['password']))
+	{
+    	$password = $_POST['password'];
+	}
+	else if (isset($_GET['password']))
+	{
+    	$password = $_GET['password'];
+	}
+	else
+	{
+		printError($scriptName, $startTime, "BuyNow", "You must provide a password!<br>");
+		exit();
+	}
+	$itemId = NULL;
+	if (isset($_POST['itemId']))
+	{
+    	$itemId = $_POST['itemId'];
+	}
+	else if (isset($_GET['itemId']))
+	{
+    	$itemId = $_GET['itemId'];
+	}
+	else
+	{
+		printError($scriptName, $startTime, "BuyNow", "You must provide an item identifier!<br>");
+		exit();
+	}
 
     getDatabaseLink($link);
 
@@ -50,7 +60,12 @@
       exit();	
     }
 
-    $result = mysql_query("SELECT * FROM items WHERE items.id=$itemId") or die("ERROR: Query failed");
+    $result = mysql_query("SELECT * FROM items WHERE items.id=$itemId");
+	if (!$result)
+	{
+		error_log("[".__FILE__."] Query 'SELECT * FROM items WHERE items.id=$itemId' failed: " . mysql_error($link));
+		die("ERROR: Query failed for item '$itemId': " . mysql_error($link));
+	}
     if (mysql_num_rows($result) == 0)
     {
       printError($scriptName, $startTime, "BuyNow", "<h3>ERROR: Sorry, but this item does not exist.</h3><br>");
@@ -59,7 +74,12 @@
     }
     $row = mysql_fetch_array($result);
 
-    $sellerNameResult = mysql_query("SELECT nickname FROM users WHERE id=$userId", $link) or die("ERROR: Seller name query failed");
+    $sellerNameResult = mysql_query("SELECT nickname FROM users WHERE id=$userId", $link);
+	if (!$sellerNameResult)
+	{
+		error_log("[".__FILE__."] Query 'SELECT nickname FROM users WHERE id=$userId' failed: " . mysql_error($link));
+		die("ERROR: Seller '$userId' name query failed: " . mysql_error($link));
+	}
     $sellerNameRow = mysql_fetch_array($sellerNameResult);
     $sellerName = $sellerNameRow["nickname"];
     mysql_free_result($sellerNameResult);

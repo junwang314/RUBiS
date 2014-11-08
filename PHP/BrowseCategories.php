@@ -6,38 +6,38 @@
     include("PHPprinter.php");
     $startTime = getMicroTime();
 
-    $region = NULL;
-    if (isset($_POST['region']))
-    {
+	$region = NULL;
+	if (isset($_POST['region']))
+	{
     	$region = $_POST['region'];
-    }
-    else if (isset($_GET['region']))
-    {
+	}
+	else if (isset($_GET['region']))
+	{
     	$region = $_GET['region'];
-    }
-    $username = NULL;
-    if (isset($_POST['nickname']))
-    {
+	}
+	$username = NULL;
+	if (isset($_POST['nickname']))
+	{
     	$username = $_POST['nickname'];
-    }
-    else if (isset($_GET['nickname']))
-    {
+	}
+	else if (isset($_GET['nickname']))
+	{
     	$username = $_GET['nickname'];
-    }
-    $password = NULL;
-    if (isset($_POST['password']))
-    {
+	}
+	$password = NULL;
+	if (isset($_POST['password']))
+	{
     	$password = $_POST['password'];
-    }
-    else if (isset($_GET['password']))
-    {
+	}
+	else if (isset($_GET['password']))
+	{
     	$password = $_GET['password'];
-    }
+	}
 
     getDatabaseLink($link);
 
     $userId = -1;
-    if (($username != null && $username !="") || ($password != null && $password !=""))
+    if ((!is_null($username) && $username != "") || (!is_null($password) && $password !=""))
     { // Authenticate the user
       $userId = authenticate($username, $password, $link);
       if ($userId == -1)
@@ -50,7 +50,12 @@
     printHTMLheader("RUBiS available categories");
 
     begin($link);
-    $result = mysql_query("SELECT * FROM categories", $link) or die("ERROR: Query failed");
+    $result = mysql_query("SELECT * FROM categories", $link);
+	if (!$result)
+	{
+		error_log("[".__FILE__."] Query 'SELECT * FROM categories' failed: " . mysql_error($link));
+		die("ERROR: Query failed: " . mysql_error($link));
+	}
     commit($link);
     if (mysql_num_rows($result) == 0)
       print("<h2>Sorry, but there is no category available at this time. Database table is empty</h2><br>\n");
@@ -59,7 +64,7 @@
 
     while ($row = mysql_fetch_array($result))
     {
-      if ($region != NULL)
+      if (!is_null($region))
         print("<a href=\"/PHP/SearchItemsByRegion.php?category=".$row["id"]."&categoryName=".urlencode($row["name"])."&region=$region\">".$row["name"]."</a><br>\n");
       else if ($userId != -1)
         print("<a href=\"/PHP/SellItemForm.php?category=".$row["id"]."&user=$userId\">".$row["name"]."</a><br>\n");

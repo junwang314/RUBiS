@@ -6,49 +6,63 @@
     include("PHPprinter.php");
     $startTime = getMicroTime();
     
-    $to = $_POST['to'];
-    if ($to == null)
+	$to = NULL;
+	if (isset($_POST['to']))
+	{
+    	$to = $_POST['to'];
+	}
+	else if (isset($_GET['to']))
+	{
+    	$to = $_GET['to'];
+	}
+    else
     {
-      $to = $_GET['to'];
-      if ($to == null)
-      {
-         printError($scriptName, $startTime, "PutComment", "You must provide a user identifier!<br>");
-         exit();
-      }
+        printError($scriptName, $startTime, "PutComment", "You must provide a user identifier!<br>");
+        exit();
     }      
 
-    $nickname = $_POST['nickname'];
-    if ($nickname == null)
-    {
-      $nickname = $_GET['nickname'];
-      if ($nickname == null)
-      {
-         printError($scriptName, $startTime, "PutComment", "You must provide a nick name!<br>");
-         exit();
-      }
-    }
-
-    $password = $_POST['password'];
-    if ($password == null)
-    {
-      $password = $_GET['password'];
-      if ($password == null)
-      {
-         printError($scriptName, $startTime, "PutComment", "You must provide a password!<br>");
-         exit();
-      }
-    }
-
-    $itemId = $_POST['itemId'];
-    if ($itemId == null)
-    {
-      $itemId = $_GET['itemId'];
-      if ($itemId == null)
-      {
-         printError($scriptName, $startTime, "PutComment", "You must provide an item identifier!<br>");
-         exit();
-      }
-    }
+	$nickname = NULL;
+	if (isset($_POST['nickname']))
+	{
+    	$nickname = $_POST['nickname'];
+	}
+	else if (isset($_GET['nickname']))
+	{
+    	$nickname = $_GET['nickname'];
+	}
+	else
+	{
+		printError($scriptName, $startTime, "PutComment", "You must provide a nick name!<br>");
+		exit();
+	}
+	$password = NULL;
+	if (isset($_POST['password']))
+	{
+    	$password = $_POST['password'];
+	}
+	else if (isset($_GET['password']))
+	{
+    	$password = $_GET['password'];
+	}
+	else
+	{
+		printError($scriptName, $startTime, "PutComment", "You must provide a password!<br>");
+		exit();
+	}
+	$itemId = NULL;
+	if (isset($_POST['itemId']))
+	{
+    	$itemId = $_POST['itemId'];
+	}
+	else if (isset($_GET['itemId']))
+	{
+    	$itemId = $_GET['itemId'];
+	}
+	else
+	{
+		printError($scriptName, $startTime, "PutComment", "You must provide an item identifier!<br>");
+		exit();
+	}
 
     getDatabaseLink($link);
 
@@ -62,7 +76,12 @@
       exit();	
     }
 
-    $result = mysql_query("SELECT * FROM items WHERE items.id=$itemId") or die("ERROR: Item query failed");
+    $result = mysql_query("SELECT * FROM items WHERE items.id=$itemId");
+	if (!$result)
+	{
+		error_log("[".__FILE__."] Query 'SELECT * FROM items WHERE items.id=$itemId' failed: " . mysql_error($link));
+		die("ERROR: Item query failed for item '$itemId': " . mysql_error($link));
+	}
     if (mysql_num_rows($result) == 0)
     {
       printError($scriptName, $startTime, "PutComment", "<h3>Sorry, but this item does not exist.</h3><br>");
@@ -70,7 +89,12 @@
       exit();
     }
 
-    $toRes = mysql_query("SELECT * FROM users WHERE id=\"$to\"") or die("ERROR: User query failed");
+    $toRes = mysql_query("SELECT * FROM users WHERE id=\"$to\"");
+	if (!$toRes)
+	{
+		error_log("[".__FILE__."] Query 'SELECT * FROM users WHERE id=\"$to\"' failed: " . mysql_error($link));
+		die("ERROR: User query failed for user '$to': " . mysql_error($link));
+	}
     if (mysql_num_rows($toRes) == 0)
     {
       printError($scriptName, $startTime, "PutComment", "<h3>Sorry, but this user does not exist.</h3><br>");
@@ -83,7 +107,7 @@
 
     printHTMLheader("RUBiS: Comment service");
 
-    print("<center><h2>Give feedback about your experience with ".$userRow["name"]."</h2><br>\n");
+    print("<center><h2>Give feedback about your experience with ".$row["name"]."</h2><br>\n");
     print("<form action=\"/PHP/StoreComment.php\" method=POST>\n".
           "<input type=hidden name=to value=$to>\n".
           "<input type=hidden name=from value=$userId>\n".

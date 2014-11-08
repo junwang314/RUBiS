@@ -6,72 +6,76 @@
     include("PHPprinter.php");
     $startTime = getMicroTime();
     
-    $categoryName = NULL;
-    if (isset($_POST['categoryName']))
-    {
+	$categoryName = NULL;
+	if (isset($_POST['categoryName']))
+	{
     	$categoryName = $_POST['categoryName'];
-    }
-    else if (isset($_GET['categoryName']))
-    {
+	}
+	else if (isset($_GET['categoryName']))
+	{
     	$categoryName = $_GET['categoryName'];
-    }
-    else
-    {
-    	printError($scriptName, $startTime, "Search Items By Category", "You must provide a category name!<br>");
-    	exit();
-    }
-    $categoryId = NULL;
-    if (isset($_POST['category']))
-    {
+	}
+	else
+	{
+		printError($scriptName, $startTime, "Search Items By Category", "You must provide a category name!<br>");
+		exit();
+	}
+	$categoryId = NULL;
+	if (isset($_POST['category']))
+	{
     	$categoryId = $_POST['category'];
-    }
-    else if (isset($_GET['category']))
-    {
+	}
+	else if (isset($_GET['category']))
+	{
     	$categoryId = $_GET['category'];
-    }
-    else
-    {
-    	printError($scriptName, $startTime, "Search Items By Category", "You must provide a category identifier!<br>");
-    	exit();
-    }
-    $page = NULL;
-    if (isset($_POST['page']))
-    {
+	}
+	else
+	{
+		printError($scriptName, $startTime, "Search Items By Category", "You must provide a category identifier!<br>");
+		exit();
+	}
+	$page = NULL;
+	if (isset($_POST['page']))
+	{
     	$page = $_POST['page'];
-    }
-    else if (isset($_GET['page']))
-    {
+	}
+	else if (isset($_GET['page']))
+	{
     	$page = $_GET['page'];
+	}
+	else
+	{
+		$page = 0;
     }
-    else
-    {
-    	$page = 0;
-    }
-    $nbOfItems = NULL;
-    if (isset($_POST['nbOfItems']))
-    {
+	$nbOfItems = NULL;
+	if (isset($_POST['nbOfItems']))
+	{
     	$nbOfItems = $_POST['nbOfItems'];
-    }
-    else if (isset($_GET['nbOfItems']))
-    {
+	}
+	else if (isset($_GET['nbOfItems']))
+	{
     	$nbOfItems = $_GET['nbOfItems'];
-    }
-    else
-    {
-    	$nbOfItems = 25;
-    }
+	}
+	else
+	{
+		$nbOfItems = 25;
+	}
 
     printHTMLheader("RUBiS: Items in category $categoryName");
     print("<h2>Items in category $categoryName</h2><br><br>");
     
     getDatabaseLink($link);
     begin($link);
-    //$result = mysql_query("SELECT items.id,items.name,items.initial_price,items.max_bid,items.nb_of_bids,items.end_date FROM items WHERE category=$categoryId  LIMIT ".$page*$nbOfItems.",$nbOfItems", $link) or die("ERROR: Query failed");
-    $result = mysql_query("SELECT items.id,items.name,items.initial_price,items.max_bid,items.nb_of_bids,items.end_date FROM items WHERE category=$categoryId AND end_date>=NOW() LIMIT ".$page*$nbOfItems.",$nbOfItems", $link) or die("ERROR: Query failed");
+    $result = mysql_query("SELECT items.id,items.name,items.initial_price,items.max_bid,items.nb_of_bids,items.end_date FROM items WHERE category=$categoryId AND end_date>=NOW() LIMIT ".$page*$nbOfItems.",$nbOfItems", $link);
+	if (!$result)
+	{
+		error_log("[".__FILE__."] Query 'SELECT items.id,items.name,items.initial_price,items.max_bid,items.nb_of_bids,items.end_date FROM items WHERE category=$categoryId AND end_date>=NOW() LIMIT ".$page*$nbOfItems.",$nbOfItems' failed: " . mysql_error($link));
+		die("ERROR: Query failed for category '$categoryId', page '$page' and nbOfItems '$nbOfItems': " . mysql_error($link));
+	}
     if (mysql_num_rows($result) == 0)
     {
       if ($page == 0)
-        print("<h2>Sorry, but there are no items available in this category (categoryId $categoryId)!</h2>");
+        print("<h2>Sorry, but there are no items available in this category !</h2>");
       else
       {
         print("<h2>Sorry, but there are no more items available in this category !</h2>");
@@ -79,9 +83,9 @@
               "&categoryName=".urlencode($categoryName)."&page=".($page-1)."&nbOfItems=$nbOfItems\">Previous page</a>\n</CENTER>\n");
       }
       mysql_free_result($result);
-      mysql_close($link);
-      printHTMLfooter($scriptName, $startTime);
       commit($link);
+      mysql_close($link);
+      printHTMLfooter($scriptName, $startTime);   
       exit();
     }
     else

@@ -6,49 +6,85 @@
     include("PHPprinter.php");
     $startTime = getMicroTime();
     
-    $regionId = $_POST['region'];
-    if ($regionId == null)
-    {
-      $regionId = $_GET['region'];
-      if ($regionId == null)
-      {
-         printError($scriptName, $startTime, "Search Items By Region", "You must provide a region!<br>");
-         exit();
-      }
-    }
-      
-    $categoryId = $_POST['category'];
-    if ($categoryId == null)
-    {
-      $categoryId = $_GET['category'];
-      if ($categoryId == null)
-      {
-         printError($scriptName, $startTime, "Search Items By Region", "You must provide a category identifier!<br>");
-         exit();
-      }
-    }
-      
-    $page = $_POST['page'];
-    if ($page == null)
-    {
-      $page = $_GET['page'];
-      if ($page == null)
-        $page = 0;
-    }
-      
-    $nbOfItems = $_POST['nbOfItems'];
-    if ($nbOfItems == null)
-    {
-      $nbOfItems = $_GET['nbOfItems'];
-      if ($nbOfItems == null)
-        $nbOfItems = 25;
-    }
+	$regionId = NULL;
+	if (isset($_POST['region']))
+	{
+    	$regionId = $_POST['region'];
+	}
+	else if (isset($_GET['region']))
+	{
+    	$regionId = $_GET['region'];
+	}
+	else
+	{
+		printError($scriptName, $startTime, "Search Items By Region", "You must provide a region!<br>");
+		exit();
+	}
+	$categoryId = NULL;
+	if (isset($_POST['category']))
+	{
+    	$categoryId = $_POST['category'];
+	}
+	else if (isset($_GET['category']))
+	{
+    	$categoryId = $_GET['category'];
+	}
+	else
+	{
+		printError($scriptName, $startTime, "Search Items By Region", "You must provide a category identifier!<br>");
+		exit();
+	}
+	$categoryName = NULL;
+	if (isset($_POST['categoryName']))
+	{
+    	$categoryName = $_POST['categoryName'];
+	}
+	else if (isset($_GET['categoryName']))
+	{
+    	$categoryName = $_GET['categoryName'];
+	}
+	else
+	{
+		printError($scriptName, $startTime, "Search Items By Region", "You must provide a category name!<br>");
+		exit();
+	}
+	$page = NULL;
+	if (isset($_POST['page']))
+	{
+    	$page = $_POST['page'];
+	}
+	else if (isset($_GET['page']))
+	{
+    	$page = $_GET['page'];
+	}
+	else
+	{
+		$page = 0;
+	}
+	$nbOfItems = NULL;
+	if (isset($_POST['nbOfItems']))
+	{
+    	$nbOfItems = $_POST['nbOfItems'];
+	}
+	else if (isset($_GET['nbOfItems']))
+	{
+    	$nbOfItems = $_GET['nbOfItems'];
+	}
+	else
+	{
+		$nbOfItems = 25;
+	}
 
     printHTMLheader("RUBiS: Search items by region");
     print("<h2>Items in category $categoryName</h2><br><br>");
     
     getDatabaseLink($link);
-    $result = mysql_query("SELECT items.id,items.name,items.initial_price,items.max_bid,items.nb_of_bids,items.end_date FROM items,users WHERE items.category=$categoryId AND items.seller=users.id AND users.region=$regionId AND end_date>=NOW() LIMIT ".$page*$nbOfItems.",$nbOfItems") or die("ERROR: Query failed");
+    $result = mysql_query("SELECT items.id,items.name,items.initial_price,items.max_bid,items.nb_of_bids,items.end_date FROM items,users WHERE items.category=$categoryId AND items.seller=users.id AND users.region=$regionId AND end_date>=NOW() LIMIT ".$page*$nbOfItems.",$nbOfItems");
+	if (!$result)
+	{
+		error_log("[".__FILE__."] Query 'SELECT items.id,items.name,items.initial_price,items.max_bid,items.nb_of_bids,items.end_date FROM items,users WHERE items.category=$categoryId AND items.seller=users.id AND users.region=$regionId AND end_date>=NOW() LIMIT ".$page*$nbOfItems."' failed: " . mysql_error($link));
+		die("ERROR: Query failed for category '$categoryId', region '$regionId', page '$page' and nbOfItems '$nbOfItems': " . mysql_error($link));
+	}
     if (mysql_num_rows($result) == 0)
     {
       if ($page == 0)
@@ -73,7 +109,7 @@
     while ($row = mysql_fetch_array($result))
     {
       $maxBid = $row["max_bid"];
-      if (($maxBid == null) ||($maxBid == 0))
+      if ((is_null($maxBid)) ||($maxBid == 0))
 	$maxBid = $row["initial_price"];
 
       print("<TR><TD><a href=\"/PHP/ViewItem.php?itemId=".$row["id"]."\">".$row["name"].

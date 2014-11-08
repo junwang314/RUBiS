@@ -6,38 +6,48 @@
     include("PHPprinter.php");
     $startTime = getMicroTime();
     
-    $nickname = $_POST['nickname'];
-    if ($nickname == null)
-    {
-      $nickname = $_GET['nickname'];
-      if ($nickname == null)
-      {
-         printError($scriptName, $startTime, "PutBid", "You must provide a nick name!<br>");
-         exit();
-      }
-    }
-
-    $password = $_POST['password'];
-    if ($password == null)
-    {
-      $password = $_GET['password'];
-      if ($password == null)
-      {
-         printError($scriptName, $startTime, "PutBid", "You must provide a password!<br>");
-         exit();
-      }
-    }
-
-    $itemId = $_POST['itemId'];
-    if ($itemId == null)
-    {
-      $itemId = $_GET['itemId'];
-      if ($itemId == null)
-      {
-         printError($scriptName, $startTime, "PutBid", "You must provide an item identifier!<br>");
-         exit();
-      }
-    }
+	$nickname = NULL;
+	if (isset($_POST['nickname']))
+	{
+    	$nickname = $_POST['nickname'];
+	}
+	else if (isset($_GET['nickname']))
+	{
+    	$nickname = $_GET['nickname'];
+	}
+	else
+	{
+		printError($scriptName, $startTime, "PutBid", "You must provide a nick name!<br>");
+		exit();
+	}
+	$password = NULL;
+	if (isset($_POST['password']))
+	{
+    	$password = $_POST['password'];
+	}
+	else if (isset($_GET['password']))
+	{
+    	$password = $_GET['password'];
+	}
+	else
+	{
+		printError($scriptName, $startTime, "PutBid", "You must provide a password!<br>");
+		exit();
+	}
+	$itemId = NULL;
+	if (isset($_POST['itemId']))
+	{
+    	$itemId = $_POST['itemId'];
+	}
+	else if (isset($_GET['itemId']))
+	{
+    	$itemId = $_GET['itemId'];
+	}
+	else
+	{
+		printError($scriptName, $startTime, "PutBid", "You must provide an item identifier!<br>");
+		exit();
+	}
 
     getDatabaseLink($link);
 
@@ -51,7 +61,12 @@
       exit();	
     }
 
-    $result = mysql_query("SELECT * FROM items WHERE items.id=$itemId") or die("ERROR: Query failed");
+    $result = mysql_query("SELECT * FROM items WHERE items.id=$itemId");
+	if (!$result)
+	{
+		error_log("[".__FILE__."] Query 'SELECT * FROM items WHERE items.id=$itemId' failed: " . mysql_error($link));
+		die("ERROR: Query failed for item '$itemId': " . mysql_error($link));
+	}
     if (mysql_num_rows($result) == 0)
     {
       printError($scriptName, $startTime, "PutBid", "<h3>Sorry, but this item does not exist.</h3><br>");
@@ -59,8 +74,14 @@
       exit();
     }
 
+	$buyNow = 0;
     $row = mysql_fetch_array($result);
-    $maxBidResult = mysql_query("SELECT MAX(bid) AS bid FROM bids WHERE item_id=".$row["id"], $link) or die("ERROR: Max bid query failed");
+    $maxBidResult = mysql_query("SELECT MAX(bid) AS bid FROM bids WHERE item_id=".$row["id"], $link);
+	if (!$maxBidResult)
+	{
+		error_log("[".__FILE__."] Query failed 'SELECT MAX(bid) AS bid FROM bids WHERE item_id=".$row["id"]."': " . mysql_error($link));
+		die("ERROR: Max bid query failed for item '".$row["id"]."': " . mysql_error($link));
+	}
     $maxBidRow = mysql_fetch_array($maxBidResult);
     $maxBid = $maxBidRow["bid"];
     if ($maxBid == 0)
@@ -68,25 +89,36 @@
       $maxBid = $row["initial_price"];
       $buyNow = $row["buy_now"];
       $firstBid = "none";
+      $nbOfBids = 0;
     }
     else
     {
       if ($row["quantity"] > 1)
       {
-        $xRes = mysql_query("SELECT bid,qty FROM bids WHERE item_id=".$row["id"]." ORDER BY bid DESC LIMIT ".$row["quantity"], $link) or die("ERROR: Quantity query failed");
+        $xRes = mysql_query("SELECT bid,qty FROM bids WHERE item_id=".$row["id"]." ORDER BY bid DESC LIMIT ".$row["quantity"], $link);
+		if (!$xRes)
+		{
+			error_log("[".__FILE__."] Query failed 'SELECT bid,qty FROM bids WHERE item_id=".$row["id"]." ORDER BY bid DESC LIMIT ".$row["quantity"],"': " . mysql_error($link));
+			die("ERROR: Quantity query failed for item '".$row["id"]."' and quantity '".$row["quantity"]."': " . mysql_error($link));
+		}
         $nb = 0;
         while ($xRow = mysql_fetch_array($xRes))
         {
           $nb = $nb + $xRow["qty"];
           if ($nb > $row["quantity"])
           {
-            $maxBid = $row["bid"];
+            $maxBid = $xRow["bid"];
             break;
           }
         }
       }
       $firstBid = $maxBid;
-      $nbOfBidsResult = mysql_query("SELECT COUNT(*) AS bid FROM bids WHERE item_id=".$row["id"], $link) or die("ERROR: Nb of bids query failed");
+      $nbOfBidsResult = mysql_query("SELECT COUNT(*) AS bid FROM bids WHERE item_id=".$row["id"], $link);
+	  if (!$nbOfBidsResult)
+	  {
+		error_log("[".__FILE__."] Query failed 'SELECT COUNT(*) AS bid FROM bids WHERE item_id=".$row["id"]."': " . mysql_error($link));
+		die("ERROR: Nb of bids query failed for item '".$row["id"]."': " . mysql_error($link));
+	  }
       $nbOfBidsRow = mysql_fetch_array($nbOfBidsResult);
       $nbOfBids = $nbOfBidsRow["bid"];
       mysql_free_result($nbOfBidsResult);
@@ -111,7 +143,12 @@
 	}
     }
 
-    $sellerNameResult = mysql_query("SELECT users.nickname FROM users WHERE id=".$row["seller"], $link) or die("ERROR: Seller name query failed");
+    $sellerNameResult = mysql_query("SELECT users.nickname FROM users WHERE id=".$row["seller"], $link);
+	if (!$sellerNameResult)
+	{
+		error_log("[".__FILE__."] Query failed 'SELECT users.nickname FROM users WHERE id=".$row["seller"]."': "  . mysql_error($link));
+		die("ERROR: Seller name query failed for seller '".$row["seller"]."': "  . mysql_error($link));
+	}
     $sellerNameRow = mysql_fetch_array($sellerNameResult);
     $sellerName = $sellerNameRow["nickname"];
     mysql_free_result($sellerNameResult);
